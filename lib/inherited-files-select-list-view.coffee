@@ -1,51 +1,24 @@
+path = require 'path'
 {File} = require 'atom'
-{SelectListView} = require 'atom-space-pen-views'
+LazyUnityHelperView = require './lazy-unity-helper-view.coffee'
 
 module.exports =
-class InheritedFilesSelectListView extends SelectListView
+class InheritedFilesSelectListView extends LazyUnityHelperView
   currentBaseClassName: null
+    
+  #region mark - LOGIC
+  confirmedWithObject: ({simpleText, detailText}) ->
+    @insertOverridableFunctionsFromFilePath(detailText)
   
-  initialize: ->
-    super
-    @on 'focusout', => @cancel()
-
-  viewForItem: ({filePath: path}) ->
-    element = document.createElement('li')
-    fileNameLength = path.match(/\/[^\/]*$/)?[0].length
-    maxLength = 40 + fileNameLength
-    element.innerText = if path.length > maxLength + 2 then ".." + path[path.length-maxLength..] else path
-    element
-
-  getFilterKey: -> 'filePath'
-
-  confirmed: ({filePath: path}) ->
-    @insertOverridableFunctionsFromFilePath(path)
-    @cancel()
-    
-  destroy: ->
-    @currentBaseClassName = null
-    @cancel()
-    @panel?.destroy()
-    
-  show: ->
-    @storeFocusedElement()
-    @panel ?= atom.workspace.addModalPanel(item: this)
-    @panel.show()
-    if @currentBaseClassName?
-      @filterEditorView.setText(@currentBaseClassName)
-    @focusFilterEditor()
-    
-  hide: ->
-    @panel?.hide()
-      
-  cancelled: ->
-    @hide()
-    
   foundFilePaths: (filePaths) ->
     if filePaths.length == 1
-      @insertOverridableFunctionsFromFilePath(filePaths[0].filePath)
+      @insertOverridableFunctionsFromFilePath(filePaths[0])
     else
-      @setItems(filePaths)
+      items = []
+      for filePath in filePaths
+        items.push({simpleText: path.basename(filePath), detailText: filePath})
+        
+      @setItems(items)
       @show()
       
   insertInheritedFunctions: ->
@@ -70,7 +43,7 @@ class InheritedFilesSelectListView extends SelectListView
     baseClassPattern = new RegExp("class " + baseClassName + " ", "g")
     results = []
     atom.workspace.scan(baseClassPattern, paths: ["*\." + extension], (result) -> 
-      results.push({filePath: result.filePath})
+      results.push(result.filePath)
     ).then (res) => (
       if results.length == 0
         atom.notifications.addError("Couldn't find any files for: " + baseClassPattern + " with extension: " + extension, {dismissable: true})
@@ -116,3 +89,5 @@ class InheritedFilesSelectListView extends SelectListView
       return
     
     return allMatches
+    
+  #endregion
