@@ -1,0 +1,20 @@
+{
+  "name": "lazy-unity-helper",
+  "main": "./lib/lazy-unity-helper",
+  "version": "0.0.0",
+  "description": "A non-efficient package for functions that help unity development",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "lazy-unity-helper:toggle",
+    "atom-workspace": "lazy-unity-helper:insert-inherited-functions"
+  },
+  "repository": "https://github.com/darrentsung/lazy-unity-helper",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom-space-pen-views": "^2.0.5"
+  }
+}
