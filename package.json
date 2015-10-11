@@ -1,7 +1,7 @@
 {
   "name": "lazy-unity-helper",
   "main": "./lib/lazy-unity-helper",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "A non-efficient package for functions that help unity development",
   "keywords": [
   ],
