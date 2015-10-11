@@ -6,7 +6,8 @@
   "keywords": [
   ],
   "activationCommands": {
-    "atom-workspace": "lazy-unity-helper:insert-inherited-functions"
+    "atom-workspace": "lazy-unity-helper:insert-inherited-functions",
+    "atom-workspace": "lazy-unity-helper:jump-to-definition"
   },
   "repository": "https://github.com/darrentsung/lazy-unity-helper",
   "license": "MIT",

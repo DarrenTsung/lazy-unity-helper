@@ -5,6 +5,7 @@
       'label': 'Lazy Unity Helper'
       'submenu': [
         {label: 'Insert Inherited Functions', command: 'lazy-unity-helper:insert-inherited-functions'}
+        {label: 'Jump to Definition', command: 'lazy-unity-helper:jump-to-definition'}
         {type: 'separator'}
       ]
     }

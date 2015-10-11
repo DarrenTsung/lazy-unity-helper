@@ -7,8 +7,9 @@ class InheritedFilesSelectListView extends LazyUnityHelperView
   currentBaseClassName: null
     
   #region mark - LOGIC
-  confirmedWithObject: ({simpleText, detailText}) ->
-    @insertOverridableFunctionsFromFilePath(detailText)
+  confirmed: (obj) ->
+    super()
+    @insertOverridableFunctionsFromFilePath(obj.detailText)
   
   foundFilePaths: (filePaths) ->
     if filePaths.length == 1
@@ -34,15 +35,14 @@ class InheritedFilesSelectListView extends LazyUnityHelperView
     
     @currentBaseClassName = baseClassName
     
-    title = editor.getTitle()
-    [_, extension] = title.match(/^.*?\.(\w+)$/)
+    extension = path.extname(editor.getPath())
     if !extension?
-      atom.notifications.addError("Failed to get extension for title: " + title, {dismissable: true})
+      atom.notifications.addError("Failed to get extension for path: " + editor.getPath(), {dismissable: true})
       return
     
     baseClassPattern = new RegExp("class " + baseClassName + " ", "g")
     results = []
-    atom.workspace.scan(baseClassPattern, paths: ["*\." + extension], (result) -> 
+    atom.workspace.scan(baseClassPattern, paths: ["*" + extension], (result) -> 
       results.push(result.filePath)
     ).then (res) => (
       if results.length == 0
@@ -91,3 +91,8 @@ class InheritedFilesSelectListView extends LazyUnityHelperView
     return allMatches
     
   #endregion
+  
+  show: ->
+    super()
+    if @currentBaseClassName?
+      @filterEditorView.setText(@currentBaseClassName)

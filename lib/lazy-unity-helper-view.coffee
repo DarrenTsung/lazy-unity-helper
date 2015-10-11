@@ -11,9 +11,10 @@ class LazyUnityHelperView extends SelectListView
     super
     @on 'focusout', => @cancel()
 
-    # element = document.createElement('li')
-    # element
-  viewForItem: ({simpleText, detailText}) ->
+  viewForItem: (obj) ->
+    simpleText = obj.simpleText
+    detailText = obj.detailText
+    
     # Style matched characters in search results
     filterQuery = @getFilterQuery()
     matches = match(detailText, filterQuery)
@@ -38,18 +39,16 @@ class LazyUnityHelperView extends SelectListView
         # Remaining characters are plain text
         @text path.substring(lastIndex)
 
-
       @li class: 'two-lines', =>
-        detailMaxLength = 30 + simpleText.length 
+        detailMaxLength = 35 + simpleText.length 
         detailTextString = if detailText.length > detailMaxLength + 2 then ".." + detailText[detailText.length-detailMaxLength..] else detailText
         
         @div class: "primary-line file", 'data-name': simpleText, 'data-path': detailText, -> highlighter(simpleText, matches)
-        @div class: 'secondary-line path no-icon', -> highlighter(detailText, matches)
+        @div class: 'secondary-line path no-icon', -> highlighter(detailTextString, matches)
 
   getFilterKey: -> 'detailText'
 
-  confirmed: ({simpleText, detailText}) ->
-    @confirmedWithObject({simpleText, detailText})
+  confirmed: (obj) ->
     @cancel()
     
   destroy: ->
@@ -69,6 +68,3 @@ class LazyUnityHelperView extends SelectListView
     @hide()
     
   #endregion
-  
-  confirmedWithObject: ({simpleText, detailText}) ->
-    # do nothing 
