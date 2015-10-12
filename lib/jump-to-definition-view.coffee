@@ -29,6 +29,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
     parametersPatternString = parameterStrings.reduceRight((x, y) -> x + ", " + y)
     
     functionDeclarationPattern = ///
+      \x20+                             # some amount of spaces (not 0)
       #{functionName}                   # functionName 
       \x20*                             # any number of spaces
       \(#{parametersPatternString}\)    # (.., .., ..) - matches # params used
