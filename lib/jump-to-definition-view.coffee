@@ -16,7 +16,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
       ^.*?              # anything from the start of the line (non greedy)
       (#{currentWord})  # capture function name (current word under cursor)
       \x20*             # any number of spaces
-      \(([^\)]+)\)      # capture everything inside parens
+      \(([^\)]*)\)      # capture everything inside parens
       ///
       
     try 
@@ -25,7 +25,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
       atom.notifications.addError("Failed to get values for function: " + currentWord, {dismissable: true})
       return
     
-    parameterStrings = ("[^,]+" for parameter in functionParameters.split(','))
+    parameterStrings = ("[^,]*" for parameter in functionParameters.split(','))
     parametersPatternString = parameterStrings.reduceRight((x, y) -> x + ", " + y)
     
     functionDeclarationPattern = ///
