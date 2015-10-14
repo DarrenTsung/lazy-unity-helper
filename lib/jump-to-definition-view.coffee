@@ -7,6 +7,8 @@ class JumpToDefinitionView extends LazyUnityHelperView
   #region mark - LOGIC
   
   jumpToDefinition: ->
+    @show()
+    
     editor = atom.workspace.getActiveTextEditor()
     currentWord = editor.getWordUnderCursor()
     currentRow = editor.getCursorBufferPosition().row
@@ -29,12 +31,15 @@ class JumpToDefinitionView extends LazyUnityHelperView
     parametersPatternString = parameterStrings.reduceRight((x, y) -> x + ", " + y)
     
     functionDeclarationPattern = ///
-      \x20+                             # some amount of spaces (not 0)
+      ^\x20*                            # start anchor
+      (?=(public|protected|private))\1  # use atomic group so that it won't attempt to backtrack after matching public / private etc..
+      [\w\x20]+                         # some amount of word characters / spaces (not 0)
       #{functionName}                   # functionName 
       \x20*                             # any number of spaces
       \(#{parametersPatternString}\)    # (.., .., ..) - matches # params used
       \x20*                             # any number of spaces
       {                                 # parenthesis 
+      \x20*$                            # end anchor
       ///
       
     extension = path.extname(editor.getPath())
@@ -42,10 +47,14 @@ class JumpToDefinitionView extends LazyUnityHelperView
       atom.notifications.addError("Failed to get extension for path: " + editor.getPath(), {dismissable: true})
       return
       
+    scanStartTime = (new Date).getTime()
     results = []
     atom.workspace.scan functionDeclarationPattern, paths: ["*" + extension], (result) -> 
       results.push(result)
     .then (res) => 
+      scanElapsedTime = ((new Date).getTime() - scanStartTime) / 1000.0;
+      atom.notifications.addInfo("Scan elapsed time: " + scanElapsedTime, {dismissable: true})
+      
       if results.length == 0
         atom.notifications.addError("Couldn't find any files matching function: " + functionName, {dismissable: true})
         return
@@ -61,6 +70,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
   
   findFunctionMatches: (currentFilePath, functionMatches, functionDeclarationPattern) ->
     file = new File(currentFilePath)
+    
     file.read().then (fileText) -> 
       lines = fileText.split("\n")
       
@@ -74,6 +84,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
   foundAllDefinitionMatches: (functionMatches) ->
     if functionMatches.length == 1
       @goToDefinitionMatch(functionMatches[0])
+      @hide()
     else 
       viewObjects = []
       for functionMatch in functionMatches
@@ -82,7 +93,6 @@ class JumpToDefinitionView extends LazyUnityHelperView
         viewObjects.push(functionMatch)
       
       @setItems(viewObjects)
-      @show()
   
   goToDefinitionMatch: (definitionMatch) ->
     @openPathToRow(definitionMatch.filePath, definitionMatch.rowIndex)
