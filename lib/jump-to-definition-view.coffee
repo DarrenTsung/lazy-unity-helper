@@ -24,7 +24,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
     try
       [_, functionName, functionParameters] = currentLineText.match(functionUsedPattern)
     catch error
-      atom.notifications.addError("Failed to get values for function: " + currentWord, {dismissable: true})
+      atom.notifications.addError("Failed to get values for function: " + currentWord)
       return
 
     parameterStrings = ("[^,]*" for parameter in functionParameters.split(','))
