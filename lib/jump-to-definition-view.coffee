@@ -18,7 +18,7 @@ class JumpToDefinitionView extends LazyUnityHelperView
       ^.*?              # anything from the start of the line (non greedy)
       (#{currentWord})  # capture function name (current word under cursor)
       \x20*             # any number of spaces
-      \(([^\)]*)\)      # capture everything inside parens
+      \(([^\)]*)\)?     # capture everything inside parens
       ///
 
     try
@@ -29,17 +29,17 @@ class JumpToDefinitionView extends LazyUnityHelperView
 
     parameterStrings = ("[^,]*" for parameter in functionParameters.split(','))
     parametersPatternString = parameterStrings.reduceRight((x, y) -> x + "," + y)
-    # allow for default parameters with this
+    # allow for default parameters with this (and error handling)
     parametersPatternString += "[^)]*"
 
     functionDeclarationPattern = ///
       ^\x20*                            # start anchor
       (?=(public|protected|private))\1  # use atomic group so that it won't attempt to backtrack after matching public / private etc..
-      [\w\x20]+                         # some amount of word characters / spaces (not 0)
+      [\w<>\x20]+                       # some amount of word characters / spaces (not 0) / <> brackets for generic functions
       #{functionName}                   # functionName
       \x20*                             # any number of spaces
       \(#{parametersPatternString}\)    # (.., .., ..) - matches # params used
-      \x20*                             # any number of spaces
+      [\w<>\x20]*                       # spaces / word characters / brackets - for generic functions
       {                                 # parenthesis
       \x20*$                            # end anchor
       ///
